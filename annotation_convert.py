@@ -4,7 +4,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from robotathome import RobotAtHome
 
-from utilis import ensure_dir, align_all_masks, plot_image, plot_mask_overlay, plot_yolo_bboxes
+from utilis import ensure_dir, align_all_masks, plot_image, plot_mask_overlay, plot_yolo_bboxes, align_all_masks_image
 
 
 def prepare_binary_mask(mask):
@@ -58,15 +58,19 @@ def get_yolo_lines_for_observation(rh_db, obs_id, epsilon_ratio):
     image = cv2.imread(str(rgb_path), cv2.IMREAD_COLOR)
     if image is None:
         return None, None, []
-
+    # Check alignment: mask is 320x240, so we expect h=320, w=240
+    # If your image is 240 height and 320 width , you MUST rotate
     img_h, img_w = image.shape[:2]
+    if img_h < img_w:
+        image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        img_h, img_w= image.shape[:2]  # Now h=240, w=320
 
     # 2. Get labels and align masks
     labels_with_masks = rh_db.get_RGBD_labels(obs_id)
     if labels_with_masks.empty:
         return image, rgb_path, []
 
-    aligned_masks = align_all_masks(labels_with_masks["mask"].tolist(), str(rgb_path))
+    aligned_masks = align_all_masks_image(labels_with_masks["mask"], image)
 
     # 3. Convert aligned masks to YOLO format
     label_lines = []
@@ -158,6 +162,39 @@ def convert_df_to_yolo_seg(rh_db, output_root,rgbd_root, epsilon_ratio=0.002):
             if label_lines:
                 f.write("\n".join(label_lines) + "\n")
 
+def replace_class_ids_with_names(label_lines, rh_db):
+    """
+    Replace first token in each YOLO label line from class id to class name.
+
+    Args:
+        label_lines: list[str]
+            Example:
+            ["5 0.12 0.34 0.56 0.78", "7 0.11 0.22 0.33 0.44"]
+
+        class_id_to_name: dict
+            Example:
+            {5: "toilet", 7: "window"}
+
+    Returns:
+        list[str]
+            Example:
+            ["toilet 0.12 0.34 0.56 0.78", "window 0.11 0.22 0.33 0.44"]
+    """
+    replaced_lines = []
+
+    for line in label_lines:
+        line = line.strip()
+        if not line:
+            continue
+
+        parts = line.split()
+        class_id = int(float(parts[0]))
+        class_name = rh_db.id2name(class_id, 'o')
+        parts[0] = class_name
+
+        replaced_lines.append(" ".join(parts))
+
+    return replaced_lines
 
 
 data_path = "data"
@@ -168,19 +205,21 @@ scene = "scene"
 
 def test_observation_visualization(rh_db, obs_id, epsilon_ratio=0.002):
     # 1. Get raw data and labels
-    image, rgb_path, label_lines = get_yolo_lines_for_observation(rh_db, obs_id, epsilon_ratio)
+    image, _, label_lines = get_yolo_lines_for_observation(rh_db, obs_id, epsilon_ratio)
     if image is None: return
 
     # 2. Prepare masks for overlay
     labels_with_masks = rh_db.get_RGBD_labels(obs_id)
-    aligned_masks = align_all_masks(labels_with_masks["mask"], str(rgb_path))
+    aligned_masks = align_all_masks_image(labels_with_masks["mask"], image)
 
     # 3. Create 3-panel plot and call separate plotting functions
     fig, axes = plt.subplots(1, 3, figsize=(18, 6))
 
     plot_image(image, title="1. Original RGB", ax=axes[0])
-    plot_mask_overlay(image, aligned_masks, title="2. DB Mask Overlay", ax=axes[1],rotate_90_ccw=True)
-    plot_yolo_bboxes(image, label_lines, title="3. YOLO BBoxes", ax=axes[2], rotate_90_ccw=True)
+    plot_mask_overlay(image, aligned_masks, title="2. DB Mask Overlay", ax=axes[1],rotate_90_ccw=False)
+
+    label_lines = replace_class_ids_with_names(label_lines, rh_db)
+    plot_yolo_bboxes(image, label_lines, title="3. YOLO BBoxes", ax=axes[2], rotate_90_ccw=False)
 
     plt.tight_layout()
     plt.show()

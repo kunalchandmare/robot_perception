@@ -18,11 +18,9 @@ def ask_yes_no(question: str, default: bool = False) -> bool:
 
     return reply in {"y", "yes"}
 
-def align_all_masks(mask_list, img_path):
-    img = cv2.imread(img_path)
-    h, w = img.shape[:2]
+def align_all_masks_image(mask_list,image:np.ndarray):
+    h, w = image.shape[:2]
     aligned_masks = []
-
     for mask in mask_list:
         # Check if shape already matches
         if (mask.shape[0], mask.shape[1]) == (h, w):
@@ -36,8 +34,11 @@ def align_all_masks(mask_list, img_path):
         # Resize if still mismatching
         mask = cv2.resize(mask, (w, h), interpolation=cv2.INTER_NEAREST)
         aligned_masks.append(mask)
-
     return aligned_masks
+
+def align_all_masks(mask_list, img_path:str):
+    img = cv2.imread(img_path)
+    return align_all_masks_image(mask_list, img)
 
 
 def plot_image(image, title="Image", ax=None, rotate_90_ccw=True):
@@ -81,11 +82,17 @@ def plot_mask_overlay(image, masks, title="Mask Overlay", ax=None, alpha=0.45, r
 
 
 def plot_yolo_bboxes(image, label_lines, title="YOLO BBoxes", ax=None, rotate_90_ccw=True):
-    """Draws YOLO detection boxes (cx, cy, w, h) on a rotated image."""
+    """
+    Draw bounding boxes derived from YOLO segmentation polygons.
+
+    label_lines format:
+        class_id x1 y1 x2 y2 x3 y3 ... xn yn
+    """
     if rotate_90_ccw:
         image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
     h, w = image.shape[:2]
+
     if ax is None:
         fig, ax = plt.subplots()
 
@@ -94,16 +101,37 @@ def plot_yolo_bboxes(image, label_lines, title="YOLO BBoxes", ax=None, rotate_90
     ax.axis("off")
 
     for line in label_lines:
-        parts = line.split()
-        class_id = parts[0]
-        cx, cy, bw, bh = [float(x) for x in parts[1:5]]
+        parts = line.strip().split()
+        if len(parts) < 7:
+            continue  # need at least class + 3 points
 
-        # Calculate box coordinates based on the rotated (h, w)
+        class_id = parts[0]
+
+        coords = np.array(list(map(float, parts[1:])), dtype=np.float32).reshape(-1, 2)
+
+        xs = coords[:, 0] * w
+        ys = coords[:, 1] * h
+
+        x_min, x_max = xs.min(), xs.max()
+        y_min, y_max = ys.min(), ys.max()
+
         rect = Rectangle(
-            ((cx - bw / 2) * w, (cy - bh / 2) * h), bw * w, bh * h,
-            linewidth=2, edgecolor="lime", facecolor="none"
+            (x_min, y_min),
+            x_max - x_min,
+            y_max - y_min,
+            linewidth=2,
+            edgecolor="lime",
+            facecolor="none"
         )
         ax.add_patch(rect)
-        ax.text((cx - bw / 2) * w, (cy - bh / 2) * h - 5, f"cls {class_id}",
-                color="yellow", fontsize=9, bbox=dict(facecolor="black", alpha=0.5))
+
+        ax.text(
+            x_min,
+            max(0, y_min - 5),
+            f"cls {class_id}",
+            color="yellow",
+            fontsize=9,
+            bbox=dict(facecolor="black", alpha=0.5)
+        )
+
     return ax
