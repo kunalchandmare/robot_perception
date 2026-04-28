@@ -8,6 +8,9 @@ from robotathome import RobotAtHome
 from robotathome import logger, log, set_log_level
 from robotathome import time_win2unixepoch, time_unixepoch2win
 from robotathome import get_labeled_img, plot_labeled_img
+
+from utilis import align_all_masks
+
 log.set_log_level('INFO')  # SUCCESS is the default
 import matplotlib.pyplot as plt
 
@@ -105,26 +108,6 @@ def download_rh(out_dir, extract_root=None, force_download=None):
     print("Done.")
 
 
-def align_all_masks(mask_list, img_path):
-    img = cv2.imread(img_path)
-    h, w = img.shape[:2]
-    aligned_masks = []
-
-    for mask in mask_list:
-        # Check if shape already matches
-        if (mask.shape[0], mask.shape[1]) == (h, w):
-            aligned_masks.append(mask)
-            continue
-
-        # Rotate if dimensions are swapped
-        if (h, w) == (mask.shape[1], mask.shape[0]):
-            mask = cv2.rotate(mask, cv2.ROTATE_90_CLOCKWISE)
-
-        # Resize if still mismatching
-        mask = cv2.resize(mask, (w, h), interpolation=cv2.INTER_NEAREST)
-        aligned_masks.append(mask)
-
-    return aligned_masks
 
 def query_sample_annotation():
 
@@ -162,15 +145,16 @@ def query_sample_annotation():
     rgb_img_loaded = cv2.imread(rgb_img)
     depth_img_loaded = cv2.imread(depth_img, cv2.IMREAD_UNCHANGED)
     fig, ax = plt.subplots(1, 3, figsize=(15, 5))
-    ax[0].imshow(cv2.cvtColor(rgb_img_loaded, cv2.COLOR_BGR2RGB))
+    ax[0].imshow(np.rot90(cv2.cvtColor(rgb_img_loaded, cv2.COLOR_BGR2RGB)))
     ax[0].set_title("RGB Image")
-    ax[1].imshow(depth_img_loaded, cmap='gray')
+    ax[1].imshow(np.rot90(depth_img_loaded), cmap='gray')
     ax[1].set_title("Depth Image")
 
     aligned_masks = align_all_masks(annotation['mask'], rgb_img)
     annotation['mask'] = aligned_masks
     [labeled_img, _] = get_labeled_img(annotation, rgb_img)
-    ax[2].imshow(labeled_img)  # Semantic labels are color-coded
+    print(labeled_img.shape)
+    ax[2].imshow(np.rot90(labeled_img))  # Semantic labels are color-coded
     ax[2].set_title("Per-pixel Annotation")
 
     plt.show()
