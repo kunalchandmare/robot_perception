@@ -1,0 +1,8 @@
+name: robot_perception
+channels:
+  - defaults
+dependencies:
+  - python=3.12
+  - pip
+  - pip:
+      - requests==2.33.1
