@@ -41,7 +41,7 @@ def align_all_masks(mask_list, img_path:str):
     return align_all_masks_image(mask_list, img)
 
 
-def plot_image(image, title="Image", ax=None, rotate_90_ccw=True):
+def plot_image(image, title="Image", ax=None, rotate_90_ccw=False):
     """Plots a single BGR image as RGB with optional rotation."""
     if rotate_90_ccw:
         image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
@@ -55,7 +55,7 @@ def plot_image(image, title="Image", ax=None, rotate_90_ccw=True):
     return ax
 
 
-def plot_mask_overlay(image, masks, title="Mask Overlay", ax=None, alpha=0.45, rotate_90_ccw=True):
+def plot_mask_overlay(image, masks, title="Mask Overlay", ax=None, alpha=0.45, rotate_90_ccw=False):
     """Plots rotated/aligned masks overlaid on an image."""
     if rotate_90_ccw:
         image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
@@ -81,7 +81,7 @@ def plot_mask_overlay(image, masks, title="Mask Overlay", ax=None, alpha=0.45, r
     return ax
 
 
-def plot_yolo_bboxes(image, label_lines, title="YOLO BBoxes", ax=None, rotate_90_ccw=True):
+def plot_yolo_bboxes(image, label_lines, title="YOLO BBoxes", ax=None, rotate_90_ccw=False):
     """
     Draw bounding boxes derived from YOLO segmentation polygons.
 

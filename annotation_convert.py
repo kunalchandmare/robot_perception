@@ -216,10 +216,10 @@ def test_observation_visualization(rh_db, obs_id, epsilon_ratio=0.002):
     fig, axes = plt.subplots(1, 3, figsize=(18, 6))
 
     plot_image(image, title="1. Original RGB", ax=axes[0])
-    plot_mask_overlay(image, aligned_masks, title="2. DB Mask Overlay", ax=axes[1],rotate_90_ccw=False)
+    plot_mask_overlay(image, aligned_masks, title="2. DB Mask Overlay", ax=axes[1])
 
     label_lines = replace_class_ids_with_names(label_lines, rh_db)
-    plot_yolo_bboxes(image, label_lines, title="3. YOLO BBoxes", ax=axes[2], rotate_90_ccw=False)
+    plot_yolo_bboxes(image, label_lines, title="3. YOLO BBoxes", ax=axes[2])
 
     plt.tight_layout()
     plt.show()
@@ -242,6 +242,6 @@ if __name__ == "__main__":
     print(observations.head())
 
     #convert_df_to_yolo_seg(rh_db=db, output_root="yolo", rgbd_root = rgbd_path)
-    id = 100000
+    id = 100001
     test_observation_visualization(rh_db=db, obs_id=id, epsilon_ratio=0.002)
     
