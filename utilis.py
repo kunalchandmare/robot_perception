@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import cv2
@@ -135,3 +136,15 @@ def plot_yolo_bboxes(image, label_lines, title="YOLO BBoxes", ax=None, rotate_90
         )
 
     return ax
+
+def save_json(data, path):
+    """Save dictionary as JSON."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+
+def load_json(path):
+    """Load JSON file and return Python object."""
+    with open(Path(path), "r", encoding="utf-8") as f:
+        return json.load(f)
