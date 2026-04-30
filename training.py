@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from ultralytics import YOLO
 
-from utilis import ensure_dir
+from utilis import ensure_dir, print_gpu_info
 
 
 def load_json(path):
@@ -246,7 +246,7 @@ def run_full_training_pipeline(
 
     model = load_segmentation_model(model_name=model_name)
 
-    print("Using GPU device:", device)
+    print_gpu_info(device)
 
     train_segmentation_model(
         model=model,

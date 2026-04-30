@@ -2,3 +2,5 @@
 /yolo/
 /yolo_split/images/
 /yolo_split/labels/
+/yolo11s-seg.pt
+/yolo26n.pt

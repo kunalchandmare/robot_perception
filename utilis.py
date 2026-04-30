@@ -148,3 +148,17 @@ def load_json(path):
     """Load JSON file and return Python object."""
     with open(Path(path), "r", encoding="utf-8") as f:
         return json.load(f)
+
+import torch
+
+def print_gpu_info(device_id):
+    """Print basic CUDA GPU info for the selected device."""
+    if not torch.cuda.is_available():
+        print("CUDA GPU not available. Using CPU.")
+
+    print("CUDA available:", torch.cuda.is_available())
+    print("GPU count:", torch.cuda.device_count())
+    print("Current device:", device_id)
+    print("GPU name:", torch.cuda.get_device_name(device_id))
+    print("Allocated memory (GB):", round(torch.cuda.memory_allocated(device_id) / 1024**3, 3))
+    print("Reserved memory (GB):", round(torch.cuda.memory_reserved(device_id) / 1024**3, 3))
