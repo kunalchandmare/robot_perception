@@ -79,30 +79,32 @@ So this repository contains the **code to work with the dataset**, but not the d
 
 ## Current Functionality
 
-The current code in `download.py` provides the initial dataset preparation and inspection workflow.
+The current code supports the full perception preparation workflow:
 
-It currently supports:
+1. download and prepare Robot@Home data locally,
+2. convert annotations to YOLO-compatible format,
+3. split the dataset into train/val/test (including stratified splitting),
+4. train and evaluate a YOLO segmentation model,
+5. inspect results and class-distribution reports.
 
-1. downloading Robot@Home archives,
-2. verifying archive integrity with MD5 checks,
-3. extracting dataset contents into a local `data/` directory,
-4. loading RGB-D observations,
-5. retrieving semantic annotations,
-6. aligning masks to image dimensions,
-7. visualizing RGB, depth, and labeled outputs.
+---
 
-### Main functions in `download.py`
+## Function description
 
-- `download_rh(...)`  
-  Downloads and extracts the Robot@Home archives into the local dataset directory.
+- `download.py`  
+  Handles dataset download, archive integrity checks, extraction, and initial data exploration/visualization.
 
-- `query_sample_annotation()`  
-  Loads a random labeled RGB-D sample and visualizes it.
+- `annotation_convert.py`  
+  Converts Robot@Home RGB-D annotations and masks into YOLO segmentation labels and prepares image/label export structure.
 
-- `align_all_masks(...)`  
-  Aligns annotation masks with the RGB image shape when needed.
+- `yolo_data_split.py`  
+  Creates train/val/test splits for YOLO data, supports random and stratified strategies, and can generate split review reports.
 
-At this stage, the repository is best described as a **dataset exploration and perception prototype**.
+- `training.py`  
+  Builds YOLO training config (`data.yaml`), runs segmentation training, performs test evaluation, and saves metrics/plots.
+
+- `utilis.py`  
+  Provides shared utility helpers for file operations, JSON I/O, plotting, mask alignment, and GPU info reporting.
 
 ---
 
@@ -110,6 +112,11 @@ At this stage, the repository is best described as a **dataset exploration and p
 
 ```text
 robot_perception/
+├── annotation_convert.py
 ├── download.py
+├── training.py
+├── utilis.py
+├── yolo_data_split.py
 ├── environment.yml
-└── data/              # created locally, ignored by Git
+├── README.md
+└── data/                      # created locally, ignored by Git
