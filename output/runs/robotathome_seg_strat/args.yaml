@@ -5,15 +5,15 @@ data: C:\Data\Python Projects\robot_perception\output\data.yaml
 epochs: 50
 time: null
 patience: 20
-batch: 16
+batch: -1
 imgsz: 640
 save: true
 save_period: -1
 cache: false
 device: '0'
-workers: 6
+workers: 10
 project: C:\Data\Python Projects\robot_perception\output\runs
-name: robotathome_seg_gpu
+name: robotathome_seg_strat
 exist_ok: true
 pretrained: true
 optimizer: auto
@@ -107,4 +107,4 @@ auto_augment: randaugment
 erasing: 0.4
 cfg: null
 tracker: botsort.yaml
-save_dir: C:\Data\Python Projects\robot_perception\output\runs\robotathome_seg_gpu
+save_dir: C:\Data\Python Projects\robot_perception\output\runs\robotathome_seg_strat

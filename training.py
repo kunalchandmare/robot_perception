@@ -292,19 +292,24 @@ def run_full_training_pipeline(
 
 
 if __name__ == "__main__":
-    dataset_path = r"C:\Data\Python Projects\robot_perception\yolo_split"
+    dataset_path = r"C:\Data\Python Projects\robot_perception\yolo_split_stratified"
     output_path = r"C:\Data\Python Projects\robot_perception\output"
-    class_name_to_id = r"C:\Data\Python Projects\robot_perception\yolo_split\class_id_to_name.json"
+    class_name_to_id = r"C:\Data\Python Projects\robot_perception\yolo_split_stratified\class_id_to_name.json"
 
+    # batch=-1: Enables 'AutoBatch', which automatically calculates the largest
+    # batch size that fits in your GPU memory, optimizing throughput without OOM errors.
+    # workers=10: Sets the number of CPU subprocesses to 10 for parallel data loading.
+    # This pre-fetches and pre-processes batches in the background so the GPU is
+    # never idle waiting for data, utilizing your 20 logical CPU threads efficiently.
     artifacts = run_full_training_pipeline(
         dataset_root=dataset_path,
         output_root=output_path,
         mapping_json=class_name_to_id,
         model_name="yolo11s-seg.pt",
-        run_name="robotathome_seg_gpu",
-        epochs=10,
+        run_name="robotathome_seg_strat",
+        epochs=50,
         imgsz=640,
-        batch=8,
+        batch=-1,
         device=0,
-        workers=8,
+        workers=10,
     )
