@@ -1,0 +1,110 @@
+{
+  "rare_threshold": 5,
+  "num_rare_classes": 1,
+  "num_normal_examples": 10,
+  "rare_classes": [
+    163
+  ],
+  "normal_example_classes": [
+    176,
+    177,
+    167,
+    169,
+    125,
+    78,
+    157,
+    38,
+    172,
+    139
+  ],
+  "rows": [
+    {
+      "class_id": 176,
+      "category": "normal_example",
+      "total_images": 17,
+      "train_images": 17,
+      "val_images": 0,
+      "test_images": 0
+    },
+    {
+      "class_id": 177,
+      "category": "normal_example",
+      "total_images": 18,
+      "train_images": 18,
+      "val_images": 0,
+      "test_images": 0
+    },
+    {
+      "class_id": 167,
+      "category": "normal_example",
+      "total_images": 31,
+      "train_images": 31,
+      "val_images": 0,
+      "test_images": 0
+    },
+    {
+      "class_id": 169,
+      "category": "normal_example",
+      "total_images": 39,
+      "train_images": 39,
+      "val_images": 0,
+      "test_images": 0
+    },
+    {
+      "class_id": 125,
+      "category": "normal_example",
+      "total_images": 41,
+      "train_images": 41,
+      "val_images": 0,
+      "test_images": 0
+    },
+    {
+      "class_id": 78,
+      "category": "normal_example",
+      "total_images": 47,
+      "train_images": 47,
+      "val_images": 0,
+      "test_images": 0
+    },
+    {
+      "class_id": 157,
+      "category": "normal_example",
+      "total_images": 55,
+      "train_images": 55,
+      "val_images": 0,
+      "test_images": 0
+    },
+    {
+      "class_id": 38,
+      "category": "normal_example",
+      "total_images": 57,
+      "train_images": 57,
+      "val_images": 0,
+      "test_images": 0
+    },
+    {
+      "class_id": 139,
+      "category": "normal_example",
+      "total_images": 69,
+      "train_images": 69,
+      "val_images": 0,
+      "test_images": 0
+    },
+    {
+      "class_id": 172,
+      "category": "normal_example",
+      "total_images": 69,
+      "train_images": 69,
+      "val_images": 0,
+      "test_images": 0
+    },
+    {
+      "class_id": 163,
+      "category": "rare",
+      "total_images": 3,
+      "train_images": 2,
+      "val_images": 1,
+      "test_images": 0
+    }
+  ]
+}

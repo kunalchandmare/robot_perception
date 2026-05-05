@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from ultralytics import YOLO
 
-from utilis import ensure_dir, print_gpu_info
+from utils import ensure_dir, print_gpu_info
 
 
 def load_json(path):
@@ -266,7 +266,7 @@ def run_full_training_pipeline(
         model_path=best_model_path,
         data_yaml=yaml_path,
         imgsz=imgsz,
-        batch=batch,
+        batch=32,
         device=device,
         workers=workers,
     )
