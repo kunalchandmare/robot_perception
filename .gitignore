@@ -6,3 +6,4 @@
 /yolo_split_stratified/labels/
 /yolo11s-seg.pt
 /yolo26n.pt
+/runs/segment/
