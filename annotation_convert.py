@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 from robotathome import RobotAtHome
 from tqdm import tqdm
 
-from utilis import ensure_dir, align_all_masks, plot_image, plot_mask_overlay, plot_yolo_bboxes, align_all_masks_image, \
+from utils import ensure_dir, align_all_masks, plot_image, plot_mask_overlay, plot_yolo_bboxes, align_all_masks_image, \
     save_json, load_json
 
 
