@@ -2,5 +2,8 @@
 /yolo/
 /yolo_split/images/
 /yolo_split/labels/
+/yolo_split_stratified/images/
+/yolo_split_stratified/labels/
 /yolo11s-seg.pt
 /yolo26n.pt
+/runs/segment/

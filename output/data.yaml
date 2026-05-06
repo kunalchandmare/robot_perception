@@ -1,4 +1,4 @@
-path: C:/Data/Python Projects/robot_perception/yolo_split
+path: C:/Data/Python Projects/robot_perception/yolo_split_stratified
 train: images/train
 val: images/val
 test: images/test

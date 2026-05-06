@@ -9,7 +9,7 @@ from robotathome import logger, log, set_log_level
 from robotathome import time_win2unixepoch, time_unixepoch2win
 from robotathome import get_labeled_img, plot_labeled_img
 
-from utilis import align_all_masks
+from utils import align_all_masks
 
 log.set_log_level('INFO')  # SUCCESS is the default
 import matplotlib.pyplot as plt

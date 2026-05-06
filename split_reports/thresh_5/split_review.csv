@@ -1,0 +1,12 @@
+class_id,category,total_images,train_images,val_images,test_images
+176,normal_example,17,17,0,0
+177,normal_example,18,18,0,0
+167,normal_example,31,31,0,0
+169,normal_example,39,39,0,0
+125,normal_example,41,41,0,0
+78,normal_example,47,47,0,0
+157,normal_example,55,55,0,0
+38,normal_example,57,57,0,0
+139,normal_example,69,69,0,0
+172,normal_example,69,69,0,0
+163,rare,3,2,1,0
