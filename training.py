@@ -1,4 +1,5 @@
 from pathlib import Path
+import argparse
 import json
 import yaml
 import pandas as pd
@@ -291,25 +292,41 @@ def run_full_training_pipeline(
     }
 
 
-if __name__ == "__main__":
-    dataset_path = r"C:\Data\Python Projects\robot_perception\yolo_split_stratified"
-    output_path = r"C:\Data\Python Projects\robot_perception\output"
-    class_name_to_id = r"C:\Data\Python Projects\robot_perception\yolo_split_stratified\class_id_to_name.json"
+def create_arg_parser():
+    """Create CLI parser for training arguments defined in pipeline.yaml."""
+    parser = argparse.ArgumentParser(description="Train and evaluate YOLO segmentation model")
+    parser.add_argument("--dataset_root", type=str, required=True, help="Split dataset root used for training")
+    parser.add_argument("--output_root", type=str, default="output", help="Directory for run artifacts and metrics")
+    parser.add_argument("--mapping_json", type=str, required=True, help="class_id_to_name.json used to populate data.yaml names")
+    parser.add_argument("--model_name", type=str, default="yolo11s-seg.pt", help="Base segmentation checkpoint")
+    parser.add_argument("--run_name", type=str, default="robotathome_seg_strat", help="Run name under output/runs")
+    parser.add_argument("--epochs", type=int, default=50, help="Number of training epochs")
+    parser.add_argument("--imgsz", type=int, default=640, help="Input image size")
+    parser.add_argument("--batch", type=int, default=-1, help="Batch size (-1 enables AutoBatch)")
+    parser.add_argument("--device", type=int, default=0, help="CUDA device index")
+    parser.add_argument("--workers", type=int, default=10, help="Data loader workers")
+    return parser
 
-    # batch=-1: Enables 'AutoBatch', which automatically calculates the largest
-    # batch size that fits in your GPU memory, optimizing throughput without OOM errors.
-    # workers=10: Sets the number of CPU subprocesses to 10 for parallel data loading.
-    # This pre-fetches and pre-processes batches in the background so the GPU is
-    # never idle waiting for data, utilizing your 20 logical CPU threads efficiently.
-    artifacts = run_full_training_pipeline(
-        dataset_root=dataset_path,
-        output_root=output_path,
-        mapping_json=class_name_to_id,
-        model_name="yolo11s-seg.pt",
-        run_name="robotathome_seg_strat",
-        epochs=50,
-        imgsz=640,
-        batch=-1,
-        device=0,
-        workers=10,
+
+def main(argv=None) -> int:
+    """CLI entrypoint used by both script execution and tests."""
+    parser = create_arg_parser()
+    args = parser.parse_args(argv)
+
+    run_full_training_pipeline(
+        dataset_root=args.dataset_root,
+        output_root=args.output_root,
+        mapping_json=args.mapping_json,
+        model_name=args.model_name,
+        run_name=args.run_name,
+        epochs=args.epochs,
+        imgsz=args.imgsz,
+        batch=args.batch,
+        device=args.device,
+        workers=args.workers,
     )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

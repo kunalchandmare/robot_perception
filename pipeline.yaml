@@ -133,11 +133,11 @@ steps:
       mapping_json:
         type: str
         required: true
-        description: "class_id_to_name.json used to populate data.yaml names"
+        description: "class_id_to_name.json used to populate data.yaml (YOLO metadata) names"
       model_name:
         type: str
         default: "yolo11s-seg.pt"
-        description: "Base segmentation checkpoint"
+        description: "Base segmentation model name"
       run_name:
         type: str
         default: "robotathome_seg_strat"
@@ -157,7 +157,7 @@ steps:
       device:
         type: int
         default: 0
-        description: "CUDA device index"
+        description: "GPU device index"
       workers:
         type: int
         default: 10
