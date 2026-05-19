@@ -7,3 +7,5 @@
 /yolo11s-seg.pt
 /yolo26n.pt
 /runs/segment/
+/.create_env_mapping.local.json
+/dependency_warnings.txt

@@ -4,6 +4,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from robotathome import RobotAtHome
 from tqdm import tqdm
+import argparse
 
 from utils import ensure_dir, align_all_masks, plot_image, plot_mask_overlay, plot_yolo_bboxes, align_all_masks_image, \
     save_json, load_json
@@ -308,40 +309,45 @@ def test_observation_visualization(rh_db, obs_id, epsilon_ratio=0.002):
 
 if __name__ == "__main__":
 
-    rgbd_path = Path(local_files_path).joinpath(rgbd).resolve()
-    scene_path = Path(local_files_path).joinpath(scene).resolve()
+    parser = argparse.ArgumentParser(
+        description="Convert Robot@Home annotations to YOLO and remap labels"
+    )
+    parser.add_argument("--rh_path", type=str, required=True, help="Root Robot@Home path")
+    parser.add_argument("--rgbd_path", type=str, required=True, help="Path to RGBD files directory")
+    parser.add_argument("--scene_path", type=str, required=True, help="Path to scene files directory")
+    parser.add_argument("--output_root", type=str, default="yolo", help="Output YOLO dataset root")
+    parser.add_argument("--rgbd_root", type=str, required=True, help="RGBD root used for relative folder structure")
+    parser.add_argument("--epsilon_ratio", type=float, default=0.002, help="Polygon simplification factor")
+    parser.add_argument("--labels_root", type=str, default="yolo/labels", help="Label directory to remap")
+    parser.add_argument("--mapping_json", type=str, default="yolo/class_id_to_name.json", help="Class mapping JSON")
+    parser.add_argument("--name_mode", type=str, default="ot", help="Robot@Home returns Object Type (ot) as Label")
+    parser.add_argument("--backup", type=bool, default=False, help="Whether to save .bak files")
 
-    def run_conversion(db):
-        observations = db.get_sensor_observations()
+    args = parser.parse_args()
 
-        print(f"Total observations: {len(observations)}")
-        print(observations.head())
-
-        convert_df_to_yolo_seg(rh_db=db, output_root="yolo", rgbd_root=rgbd_path)
-
-    # 1. Initialize the toolbox with your dataset path
     try:
-        db = RobotAtHome(rh_path=Path(data_path).resolve(),rgbd_path=rgbd_path,scene_path=scene_path)
+        db = RobotAtHome(
+            rh_path=Path(args.rh_path).resolve(),
+            rgbd_path=Path(args.rgbd_path).resolve(),
+            scene_path=Path(args.scene_path).resolve(),
+        )
     except Exception as e:
         print(f"Error initializing RobotAtHome: {e}")
-        exit(1)
+        raise SystemExit(1)
 
-    #run_conversion(db)
-
-    #id = 117197
-    #id = 100000
-    #test_observation_visualization(rh_db=db, obs_id=id, epsilon_ratio=0.002)
-
+    convert_df_to_yolo_seg(
+        rh_db=db,
+        output_root=args.output_root,
+        rgbd_root=Path(args.rgbd_root).resolve(),
+        epsilon_ratio=args.epsilon_ratio,
+    )
 
     semantic_id_to_name = remap_labels_to_semantic_ids(
-        labels_root=r"C:\Data\Python Projects\robot_perception\yolo_split\labels",
+        labels_root=args.labels_root,
         rh_db=db,
-        name_mode="ot",
-        mapping_json=r"C:\Data\Python Projects\robot_perception\yolo_split\semantic_id_to_name.json",
-        backup=True
+        name_mode=args.name_mode,
+        mapping_json=args.mapping_json,
+        backup=args.backup,
     )
 
-    save_json(
-        semantic_id_to_name,
-        r"C:\Data\Python Projects\robot_perception\yolo_split\semantic_id_to_name.json"
-    )
+    save_json(semantic_id_to_name, args.mapping_json)
