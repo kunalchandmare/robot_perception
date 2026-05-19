@@ -1,15 +1,13 @@
 from pathlib import Path
+import argparse
 import random
 import shutil
+from collections import Counter
 
 import pandas as pd
 from tqdm import tqdm
 
-import utilis
-from pathlib import Path
-import random
-import shutil
-from collections import Counter
+import utils
 
 
 def read_yolo_classes(label_path):
@@ -558,7 +556,7 @@ def export_split_review(
         "rows": df.to_dict(orient="records"),
     }
 
-    utilis.save_json(report, json_path)
+    utils.save_json(report, json_path)
 
     print(f"Saved CSV:  {csv_path}")
     print(f"Saved JSON: {json_path}")
@@ -569,49 +567,58 @@ def export_split_review(
         "df": df,
     }
 
-src_root = "yolo"
-split_root = "yolo_split"
-split_stratified__root = "yolo_split_stratified"
+def _str_to_bool(value):
+    if isinstance(value, bool):
+        return value
+    lowered = str(value).strip().lower()
+    if lowered in {"true", "1", "yes", "y"}:
+        return True
+    if lowered in {"false", "0", "no", "n"}:
+        return False
+    raise argparse.ArgumentTypeError("Expected one of: true/false, 1/0, yes/no")
+
+
+def _parse_image_exts(value):
+    if isinstance(value, (tuple, list)):
+        return tuple(value)
+    parts = [part.strip() for part in str(value).split(",") if part.strip()]
+    normalized = [part if part.startswith(".") else f".{part}" for part in parts]
+    return tuple(normalized)
+
+
+def create_arg_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Split YOLO dataset into train/val/test folders")
+    parser.add_argument("--source_root", type=str, required=True, help="Source YOLO dataset root")
+    parser.add_argument("--output_root", type=str, default="yolo_split_stratified", help="Output split dataset root")
+    parser.add_argument("--train_ratio", type=float, default=0.8, help="Training split ratio")
+    parser.add_argument("--val_ratio", type=float, default=0.1, help="Validation split ratio")
+    parser.add_argument("--test_ratio", type=float, default=0.1, help="Test split ratio")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument("--image_exts", type=str, default=".jpg,.jpeg,.png", help="Comma-separated image extensions")
+    parser.add_argument("--use_stratified", type=_str_to_bool, default=True, help="Use stratified split")
+    parser.add_argument("--rare_threshold", type=int, default=20, help="Rare class threshold for stratified split")
+    return parser
+
+
+def main(argv=None) -> int:
+    parser = create_arg_parser()
+    args = parser.parse_args(argv)
+
+    split_yolo_dataset(
+        source_root=Path(args.source_root).resolve(),
+        output_root=Path(args.output_root).resolve(),
+        train_ratio=args.train_ratio,
+        val_ratio=args.val_ratio,
+        test_ratio=args.test_ratio,
+        seed=args.seed,
+        image_exts=_parse_image_exts(args.image_exts),
+        use_stratified=args.use_stratified,
+        rare_threshold=args.rare_threshold,
+    )
+    return 0
+
 
 if __name__ == "__main__":
-
-    source_root = Path(src_root).resolve()
-    output_root = Path(split_stratified__root).resolve()
-
-    images_root = source_root / "images"
-    labels_root = source_root / "labels"
-
-    splits = split_yolo_dataset(
-        source_root=source_root,
-        output_root=output_root,
-        use_stratified=True,
-        rare_threshold=20,
-        seed=42
-    )
-
-
-
-    # pairs, _ = collect_image_label_pairs(
-    #     images_root=images_root,
-    #     labels_root=labels_root
-    # )
-    #
-    # splits = stratified_split_pairs(
-    #     pairs=pairs,
-    #     train_ratio=0.8,
-    #     val_ratio=0.1,
-    #     test_ratio=0.1,
-    #     seed=42,
-    #     rare_threshold=5,
-    # )
-    #
-    # rare_threshold = 5 # resulted in only 1 image so increasing to 20
-    #
-    # _ = export_split_review(
-    #     splits=splits,
-    #     output_dir=f"split_reports/thresh_{rare_threshold}",
-    #     rare_threshold=rare_threshold,
-    #     normal_example_count=10,
-    # )
+    raise SystemExit(main())
 
 
